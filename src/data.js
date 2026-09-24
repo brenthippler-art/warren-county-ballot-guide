@@ -27,6 +27,16 @@ export const DATA = {
     '4': { pick: 'Megan Bailey', url: 'https://www.meg4mag.com/' },
   },
 
+  // Keyed by magistrate district number, as returned by Mag_Dist.
+  constable: {
+    '2': {pick: 'Daniel Alexander', url: ''},
+  },
+
+  // County surveyor - all precincts
+  countySurveyor: {
+    office: 'Warren County Surveyor', pick: 'Barry Claypool', url: '' 
+  },  
+
   // At-large — same for every address inside Bowling Green city limits.
   cityCommission: [
     { pick: 'Dana Beasley-Brown', url: 'https://www.facebook.com/DanaForBG' },

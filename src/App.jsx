@@ -5,7 +5,7 @@ import RaceRow, { LevelLabel } from "./components/RaceRow.jsx";
 import ElectionDates from "./components/ElectionDates.jsx";
 import VoterPrep from "./components/VoterPrep.jsx";
 
-import logoWcd from "./assets/logo-wcd.webp";
+import warrenVote from "./assets/warren-vote.png";
 import flagUs from "./assets/flag-us.webp";
 import flagKy from "./assets/flag-ky.webp";
 import sealWarrenCounty from "./assets/seal-warren-county.webp";
@@ -53,10 +53,11 @@ export default function App() {
     <>
       <header className="top">
         <div className="wrap" style={{ padding: 0 }}>
-          <img className="logo" src={logoWcd} alt="Warren County Democrats" />
+          <img className="logo" src={warrenVote} alt="Warren County Vote" />
           <p className="eyebrow">
             Warren County, Kentucky · General Election, Nov 3 2026
           </p>
+          <p className="eyebrow">An independent volunteer guide, not an official county site.</p>
           {view === "ballot" ? (
             <>
               <h1>Find your ballot, district by district.</h1>
@@ -220,6 +221,28 @@ export default function App() {
                     />
                   )}
 
+                  {result.magDist ? (
+                    <RaceRow
+                      level="County"
+                      office={`Constable, District ${result.magDist}`}
+                      pick={DATA.constable[result.magDist]}
+                      note="Warren County Magesterial District"
+                      icon={sealWarrenCounty}
+                      circular
+                    />
+                  ) : (
+                    <RaceRow
+                      level="County"
+                      office="Constable"
+                      pick={null}
+                      note="Couldn't determine your magistrate district."
+                      icon={sealWarrenCounty}
+                      circular
+                    />
+                  )}
+
+                  <RaceRow level="County" office={DATA.countySurveyor.office} pick={DATA.countySurveyor} icon={sealWarrenCounty}/>
+                  
                   {result.inCity ? (
                     DATA.cityCommission.length ? (
                       DATA.cityCommission.map((c, i) => (
@@ -301,20 +324,54 @@ export default function App() {
         )}
 
         <footer>
-          District boundaries and geocoding come from the City-County Planning
-          Commission, City of Bowling Green, and Commonwealth of Kentucky public
-          GIS services. Candidates marked "WCDP Endorsed" are endorsed by the{" "}
-          <strong>Warren County Democratic Party</strong> — this is not official
-          ballot information. Confirm your registration and sample ballot at{" "}
-          <a
-            href="https://vrsws.sos.ky.gov/ovrweb/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            govote.ky.gov
-          </a>
-          .
-        </footer>
+  {/* 1. Sponsor line. Kentucky requires political material to say who paid for it */}
+  <p>
+    <strong>Paid for by Brenton Hippler.</strong>
+  </p>
+
+  {/* 2 & 3. Independent project: not the county, not a candidate, not the party */}
+  <p>
+    warrencountyvote.com is an independent, volunteer-run project. It is not
+    affiliated with the Warren County Clerk, the Kentucky State Board of
+    Elections, or any government office, and is not authorized by any
+    candidate or candidate's committee.
+  </p>
+
+  {/* 4. Your existing endorsement line, now clear that the party endorses but doesn't run the site */}
+  <p>
+    Candidates marked "WCDP Endorsed" are endorsed by the{" "}
+    <strong>Warren County Democratic Party</strong>. This site is not operated
+    by the Party, and this is not official ballot information.
+  </p>
+
+  {/* Your existing data-source line, plus a caveat that boundaries can change */}
+  <p>
+    District boundaries and geocoding come from the City-County Planning
+    Commission, City of Bowling Green, and Commonwealth of Kentucky public GIS
+    services and may not reflect recent changes.
+  </p>
+
+  {/* Fixed link: the visible text now matches the real destination */}
+  <p>
+    Confirm your registration, polling place, and sample ballot at{" "}
+    
+    <a href="https://vrsws.sos.ky.gov/ovrweb/govoteky"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      GoVoteKY.com
+    </a>{" "}
+    or with the Warren County Clerk.
+  </p>
+
+  {/* 5. Privacy. Keep ONLY if accurate: check analytics/logging first */}
+  <p>Addresses you enter are used only to look up your districts and are not stored.</p>
+
+  {/* Update each election cycle so voters know the candidate list is current */}
+  <p>
+    Last updated: <time dateTime="2026-09-24">September 24, 2026</time>
+  </p>
+</footer>
       </div>
     </>
   );
