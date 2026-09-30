@@ -1,71 +1,74 @@
 # Warren County Ballot Guide
 
-A React (Vite) rebuild of the address → ballot lookup tool for Warren County
-Democrats: enter an address, get U.S. Senate/House, KY House/Senate, county
-magistrate, and Bowling Green City Commission races, with Warren County
-Democratic Party endorsements where on file.
+A lookup tool for Warren County, Kentucky voters. Enter a home address and see every race on your ballot, from U.S. Senate down to county magistrate and Bowling Green City Commission, along with the Warren County Democratic Party's endorsements where they're on file.
+
+**[Live site →](https://warrencountyvote.com)**
+
+## The problem
+
+Most voters don't know which magistrate, city commission, or state legislative district they live in, so down-ballot races are easy to overlook. District lines can also change between elections, so a static list goes out of date.
+
+## My contribution
+
+Sole developer. This is an independent, volunteer-run project.
+
+- Address lookup that matches a voter to their federal, state, county, and city districts
+- A results view listing each race, with the endorsed candidate or a clear "no endorsement on file" state
+- Election Dates and Voter Prep tabs covering deadlines, voting windows, ID requirements, and a voter hotline
+- A content setup that lets non-developers update endorsements and dates each election cycle
+
+## Tech stack
+
+React, Vite, public ArcGIS REST services (Warren County, City of Bowling Green, and Commonwealth of Kentucky GIS)
+
+## Screenshots
+
+![Address search](./screenshots/search.png)
+![Ballot results](./screenshots/results.png)
+![Election dates tab](./screenshots/dates.png)
+
+## Technical decisions
+
+### Live public GIS data instead of hand-built address lists
+The app geocodes the address with the county's 911 address locator, then checks which district boundary contains that point in each official GIS layer. Results stay accurate when districts are redrawn, with no manual data entry.
+
+### Parallel district queries
+Once an address is geocoded, the lookups for magistrate, city limits, KY House, KY Senate, and other boundaries all run at the same time with `Promise.all` instead of one after another. The total wait is only as long as the slowest query.
+
+### No backend and no stored addresses
+Every lookup runs in the voter's browser, directly against public GIS services. There's no server to maintain, and the app never stores anyone's address.
+
+### Content in plain data files
+Endorsements, election dates, and voter prep content live in three small files (`src/data.js`, `src/electionDates.js`, `src/voterPrep.js`). Updating the guide for a new election means editing those files, not the app's code.
+
+## Accessibility and testing
+
+- Labeled form input for the address search
+- Races grouped by level (federal, state, county, city) with icons and text labels, so meaning never relies on the icon alone
+- Lookups tested against addresses inside and outside Bowling Green city limits and across different magistrate and legislative districts
+- **No automated test suite yet.** 
 
 ## Setup
 
 ```bash
+git clone https://github.com/brenthippler-art/warren-county-ballot-guide.git
+cd warren-county-ballot-guide
 npm install
-npm run dev       # local dev server
-npm run build      # production build -> dist/
-npm run preview    # preview the production build
+npm run dev
 ```
 
-## Project layout
+`npm run build` creates a production build in `dist/`, and `npm run preview` serves it locally.
 
-```
-src/
-  App.jsx              main app: tabs, search box + results, election dates, voter prep
-  data.js               <-- edit this file to update endorsements
-  electionDates.js      <-- edit this file to update key election dates
-  voterPrep.js           <-- edit this file to update the voter prep checklist and ID rules
-  index.css             all styles
-  lib/gis.js             geocoding + district-lookup calls to county/state GIS services
-  components/
-    RaceRow.jsx          one race row (level icon, office, endorsed pick or blank state)
-    EndorsementSeal.jsx   the gold "WCDP Endorsed" seal icon
-    ElectionDates.jsx     Election Dates tab
-    VoterPrep.jsx          Voter Prep tab (registration, polling place, ID, hotline)
-  assets/
-    logo-wcd.webp             header logo
-    flag-us.webp               U.S. flag icon (Federal races)
-    flag-ky.webp               Kentucky state seal icon (State races)
-    seal-warren-county.webp    Warren County seal (Magistrate race)
-    seal-bowling-green.webp    Bowling Green seal (City Commission race)
-```
+### Updating content for a new election
 
-## Updating endorsements
+- **Endorsements:** edit `src/data.js`. State House and Senate picks are keyed by district number, magistrates by magistrate district, and City Commission is a list since those seats are at-large. Each pick can include an optional campaign `url`.
+- **Dates and voter prep:** edit `src/electionDates.js` and `src/voterPrep.js`. Both are sourced from the Kentucky State Board of Elections and should be re-checked every cycle.
+- **GIS services:** if a county or state service moves, update its URL constant in `src/lib/gis.js`.
 
-Everything you need to change for a new cycle lives in `src/data.js`:
+## Live link
 
-- `senate.pick` / `usHouse.pick` — statewide/federal, shown to everyone
-- `stateHouse` / `stateSenate` — keyed by district number as a string, e.g. `"20": { pick: "Name", url: "https://..." }`
-- `magistrate` — keyed by magistrate district number
-- `cityCommission` — an array, since it's multiple at-large seats
+[warrencountyvote.com](https://warrencountyvote.com)
 
-Each pick can include an optional `url` — when present, the candidate's name
-links out to their campaign site. Leave an entry out (or set no `pick`) and
-that race shows "No endorsement on file yet" instead of a badge.
+## Author
 
-## Updating election dates and voter prep content
-
-`src/electionDates.js` and `src/voterPrep.js` hold the content for those two
-tabs (deadlines, voting windows, ID requirements, hotline). Both are sourced
-from the Kentucky State Board of Elections via ourpeopleourvote.org and
-should be re-checked each cycle, since dates and rules can change.
-
-## Data sources
-
-District boundaries and geocoding are queried live, client-side, from public
-ArcGIS REST services — no backend, no stored address data:
-
-- Address geocoding: Warren County/Bowling Green `CompositeLocator911`
-- Magistrate districts: City-County Planning Commission (`CCPC_Magisterial_Voting_Districts`)
-- Bowling Green city limits: City of Bowling Green GIS (`BGKY_Bowling_Green_City_Limits`)
-- KY House / KY Senate districts: Commonwealth of Kentucky DGI (`Ky_House_Districts_WM`, `Ky_Senate_Districts_WM_gdb`)
-
-If any of these services move, update the corresponding URL constant in
-`src/lib/gis.js`.
+**Brenton Hippler:** [Portfolio](https://brentoncodes.dev) · [LinkedIn](https://www.linkedin.com/in/brenton-hippler-818b6397) · [GitHub](https://github.com/brenthippler-art)
